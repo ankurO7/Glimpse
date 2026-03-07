@@ -60,6 +60,32 @@ export default async function VideoPage({
                     </div>
 
                 </div>
+
+                {/* Right Column: Transcript */}
+                <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800 h-150 flex flex-col">
+                    <h3 className="font-semibold text-white mb-4">⚡AI Transcript</h3>
+
+                    <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                        {isTranscriptReady ? (
+                            transcript.length > 0 ? (
+                                transcript.map((line,i) => (
+                                    <div key={i} className="group p-2 rounded hover:bg-slate-800 transition">
+                                        <span className="text-xs text-blue-500 font-mono block mb-1">{line.time}</span>
+                                        <p className="text-sm text-slate-300">{line.text}</p>
+                                    </div>
+                                ))
+                            ): (
+                                <p className="text-slate-500 italic text-sm">No speech detected.</p>
+                            )
+                        ): (
+                            <div className="flex flex-col items-center justify-center h-40 text-slate-500 gap-2">
+                                <span className="animate-spin">⌛</span>
+                                <p className="text-sm">Generating Transcript...</p>
+                            </div>
+                        
+                        )}
+                    </div>
+                </div>
             </div>
         </main>
     )
