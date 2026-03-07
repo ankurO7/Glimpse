@@ -14,7 +14,7 @@ export async function createUploadUrl(){
         new_asset_settings: {
             playback_policies: ['public'],
             video_quality: 'plus',
-            static_renditions: 'standard',
+            static_renditions: [{ name: 'standard' }],
             inputs: [
                 {
                     generated_subtitles: [
@@ -35,10 +35,12 @@ export async function getAssetIdFromUpload(uploadId: string){
     if(upload.asset_id){
         const asset = await mux.video.assets.retrieve(upload.asset_id);
 
-        return {
-            playbackId: asset.playback_ids[0].id,
-            status: asset.status
-        };
+        if(asset.playback_ids && asset.playback_ids.length > 0){
+            return {
+                playbackId: asset.playback_ids[0].id,
+                status: asset.status
+            };
+        }
     }
     return { status: 'waiting'};
 }
