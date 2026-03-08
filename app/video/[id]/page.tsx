@@ -2,7 +2,9 @@ import { getAssetStatus } from "@/app/actions";
 import MuxPlayerWrapper from "@/components/MuxPlayerWrapper";
 import ShareButton from "@/components/ShareButton";
 import VideoStatusPoller from "@/components/VideoStatusPoller";
-import { ArrowLeft, Link } from "lucide-react";
+import VideoSummary from "@/components/VideoSummary";
+import { ArrowLeft, Download } from "lucide-react";
+import  Link  from "next/link";
 
 export default async function VideoPage({
     params
@@ -28,7 +30,7 @@ export default async function VideoPage({
                         className="inline-flex items-center gap-2 text-slate-400 hover:text-white transition">
                             <ArrowLeft className="w-4 h-4" />
                             Record New Video
-                        </Link>
+                    </Link>
                 </div>
 
                 {/* Left Column: Video Player */}
@@ -44,7 +46,7 @@ export default async function VideoPage({
                         )}
                     </div>
 
-                    {/* Action Buttons */}
+                    {/* Action Buttons Download Not working */}
                     <div className="flex justify-between items-center bg-slate-900 p-6 rounded-xl border border-slate-800">
                         <h1 className="text-xl font-bold text-white">Screen Recording</h1>
                         <div className="flex gap-3">
@@ -53,11 +55,20 @@ export default async function VideoPage({
                                 <a href={downloadUrl}
                                 target="_blank"
                                 rel="noopener nonreferrer"
-                                className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg "></a>
+                                className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg ">
+                                    <Download className="w-4 h-4" /> Download
+                                </a>
 
                             )}
                         </div>
                     </div>
+
+                    {/* AI Summary */}
+                    {isVideoReady && isTranscriptReady && (
+                        <div className="mt-6">
+                            <VideoSummary playbackId={playbackId} />
+                        </div>
+                    )}
 
                 </div>
 
@@ -77,9 +88,9 @@ export default async function VideoPage({
                             ): (
                                 <p className="text-slate-500 italic text-sm">No speech detected.</p>
                             )
-                        ): (
+                            ): (
                             <div className="flex flex-col items-center justify-center h-40 text-slate-500 gap-2">
-                                <span className="animate-spin">⌛</span>
+                                <span className="animate-bounce">⌛</span>
                                 <p className="text-sm">Generating Transcript...</p>
                             </div>
                         

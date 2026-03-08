@@ -10,16 +10,28 @@ const mux = new Mux({
 
 export async function createUploadUrl(){
 
-    const upload =- await mux.video.uploads.create({
+    const upload = await mux.video.uploads.create({
         new_asset_settings: {
             playback_policies: ['public'],
             video_quality: 'plus',
-            static_renditions: [{ name: 'standard' }],
+            static_renditions: [{ resolution: '360p' }],
             inputs: [
                 {
                     generated_subtitles: [
                         { language_code: 'en', name: 'English (Auto)'}
                     ]
+                },
+                {
+                    url: '',
+                    overlay_settings: {
+                        vertical_align: 'top',
+                        vertical_margin: '20px',
+                        horizontal_align: 'right',
+                        horizontal_margin: '20px',
+                        width: '150px',
+                        opacity: '80%'
+
+                    }
                 }
             ]
         },
@@ -112,5 +124,33 @@ export async function getAssetStatus(playbackId: string){
         };
     } catch(e) {
         return { status: 'errored', transcriptStatus: 'errored', transcript: []};
+    }
+}
+
+export async function generateVideoSummary(playbackId: string) {
+    try{
+        const assets = await mux.video.assets.list({ limit: 100 });
+        const asset = assets.data.find(a =>
+            a.playback_ids?.some(p => p.id === playbackId)
+        );
+
+        if(!asset) {
+            throw new Error('Asset not found');
+        }
+
+        const { getSummaryAndTags } = await import('@mux/ai/workflows');
+
+        const result = await getSummaryAndTags(asset.id, {
+            tone: 'professional',
+        });
+
+        return {
+            title: result.title,
+            summary: result.description,
+            tags: result.tags,
+        };
+    } catch (error) {
+        console.error('Error generating summary: ',error);
+        return null;
     }
 }

@@ -26,6 +26,7 @@ export default function VideoThumbnail ({ playbackId }: {playbackId: string} ){
         onMouseLeave={() => setIsHovered(false)}>
             <Image 
             src={isHovered ? gifUrl : posterUrl}
+            alt='video'
             fill
             unoptimized
             onError={() => setHasError(true)}

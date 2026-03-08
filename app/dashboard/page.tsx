@@ -9,10 +9,10 @@ export default async function DashboardPage() {
     const videos = await ListVideos();
 
     return (
-        <main>
-            <div>
-                <div>
-                    <h1>My Recordings</h1>
+        <main className="min-h-screen bg-slate-950 p-6 md:p-12 text-slate-200">
+            <div className="max-w-6xl mx-auto">
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-3xl font-bold text-white">My Recordings</h1>
                     <Link href="/" className="flex items-center gap-2 text-blue-400 hover:text-white transition text-sm">
                         <ArrowLeft className="w-4 h-4" /> Back to Recorder
                     </Link>

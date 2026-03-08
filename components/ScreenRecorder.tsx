@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUploadUrl, getAssetIdFromUpload } from '@/app/actions';
-import { Loader2, StopCircle, Monitor } from 'lucide-react';
+import { Loader2, StopCircle, Monitor, Video } from 'lucide-react';
 import { disconnect } from 'process';
 import { isPageStatic } from 'next/dist/build/utils';
 
@@ -67,7 +67,7 @@ export default function ScreenRecorder() {
                 mimeType: 'video/webm; codecs=vp9',
             });
 
-            mediaRecorder.current = mediaRecorder;
+            mediaRecorderRef.current = mediaRecorder;
             chunksRef.current = [];
 
             // 7. collect chunks as they're recorded.
@@ -92,8 +92,8 @@ export default function ScreenRecorder() {
 
                 // stop all tracks at this point.
 
-                screenStreamRef.current.getTracks().forEach(t => t.stop());
-                micStreamRef.current.getTracks().forEach(t => t.stop());
+                screenStreamRef.current?.getTracks().forEach(t => t.stop());
+                micStreamRef.current?.getTracks().forEach(t => t.stop());
             };
 
             // 9. start recording
@@ -172,7 +172,7 @@ export default function ScreenRecorder() {
                 {/* Recording Ready State */}
                 {!isRecording && mediaBlob && (
                     <div className='text-emerald-400 flex flex-col items-center'>
-                        <Video classname="w-12 h-12 mb-2" />
+                        <Video className="w-12 h-12 mb-2" />
                         <span>Recording Ready</span>
                     </div>
                 )}
