@@ -1,8 +1,8 @@
-# BLoom 📹✨
+# Glimpse 📹✨
 
-BLoom is a full-stack, AI-powered screen recording and video management platform. It allows users to capture their screen and microphone, upload recordings directly to Mux, and automatically generate AI transcripts and video summaries. 
+Glimpse is a full-stack, AI-powered screen recording and video management platform. It allows users to capture their screen and microphone, upload recordings directly to Mux, and automatically generate AI transcripts and video summaries. 
 
-Built with a focus on scalable video infrastructure, BLoom leverages secure webhooks and direct-to-cloud uploading to handle heavy video processing seamlessly.
+Built with a focus on scalable video infrastructure, Glimpse leverages secure webhooks and direct-to-cloud uploading to handle heavy video processing seamlessly.
 
 ## 🚀 Features
 
@@ -25,7 +25,7 @@ Built with a focus on scalable video infrastructure, BLoom leverages secure webh
 
 ### 1. Clone & Install
 ```bash
-git clone [https://github.com/yourusername/bloom.git](https://github.com/yourusername/bloom.git)
+git clone [https://github.com/yourusername/Glimpse.git](https://github.com/yourusername/Glimpse.git)
 cd bloom
 npm install
 ```
