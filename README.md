@@ -34,23 +34,20 @@ npm install
     Create a .env file in the root directory and add the following keys:
 
     # Database
-    ```bash
     DATABASE_URL="your_database_connection_string"
-    ```
-
-    ```bash # NextAuth
+    
     NEXTAUTH_URL="http://localhost:3000"
     NEXTAUTH_SECRET="your_nextauth_secret"
     GOOGLE_CLIENT_ID="your_google_client_id"
     GOOGLE_CLIENT_SECRET="your_google_client_secret"
-    ```
-    ```bash # Mux Video API
+    
+     # Mux Video API
     MUX_TOKEN_ID="your_mux_token_id"
     MUX_TOKEN_SECRET="your_mux_token_secret"
     MUX_WEBHOOK_SECRET="your_mux_webhook_signing_secret"
-    ```
+
 ### 3. Database Setup
-    Push the schema to your database to create the necessary tables:
+Push the schema to your database to create the necessary tables:
 
 ```bash
     npx prisma db push
