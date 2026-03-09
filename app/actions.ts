@@ -2,6 +2,8 @@
 
 import Mux from "@mux/mux-node";
 import { Playback } from "@mux/mux-node/resources/video.mjs";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
 const mux = new Mux({
     tokenId: process.env.MUX_TOKEN_ID,
@@ -10,34 +12,42 @@ const mux = new Mux({
 
 export async function createUploadUrl(){
 
+    const session = await getServerSession(authOptions);
+    const currentUser = await prisma.user.findUnique({
+            where: { email: session?.user?.email}
+    });
     const upload = await mux.video.uploads.create({
         new_asset_settings: {
             playback_policies: ['public'],
-            video_quality: 'plus',
-            static_renditions: [{ resolution: '360p' }],
+            video_quality: 'basic',
+            passthrough: currentUser?.id,
+            static_renditions: [{ resolution: '480p' }],
             inputs: [
                 {
                     generated_subtitles: [
                         { language_code: 'en', name: 'English (Auto)'}
                     ]
                 },
-                {
-                    url: '',
-                    overlay_settings: {
-                        vertical_align: 'top',
-                        vertical_margin: '20px',
-                        horizontal_align: 'right',
-                        horizontal_margin: '20px',
-                        width: '150px',
-                        opacity: '80%'
+                // {
+                //     url: '',
+                //     overlay_settings: {
+                //         vertical_align: 'top',
+                //         vertical_margin: '20px',
+                //         horizontal_align: 'right',
+                //         horizontal_margin: '20px',
+                //         width: '150px',
+                //         opacity: '80%'
 
-                    }
-                }
+                //     }
+                // }
             ]
         },
         cors_origin: '*',
     });
-    return upload;
+    return {
+        id: upload.id,
+        url: upload.url
+    };
 }
 
 export async function getAssetIdFromUpload(uploadId: string){
@@ -60,10 +70,28 @@ export async function getAssetIdFromUpload(uploadId: string){
 export async function ListVideos() {
 
     try {
-        const assets = await mux.video.assets.list({
-            limit: 25,
+        const session = await getServerSession(authOptions);
+    
+        if(!session?.user?.email){
+            return [];
+        }
+        const currentUser = await prisma.user.findUnique({
+            where: { email: session?.user?.email}
         });
-        return assets.data;
+    
+        if(!currentUser) return [];
+    
+        const userVideos = await prisma.video.findMany({
+                where: {
+                    userId: currentUser.id, 
+                },
+                orderBy: {
+                    createdAt: 'desc', 
+                }
+            });
+    
+        return userVideos;
+        
     } catch(e){
         console.error("Error listing videos",e);
         return [];
@@ -141,6 +169,7 @@ export async function generateVideoSummary(playbackId: string) {
         const { getSummaryAndTags } = await import('@mux/ai/workflows');
 
         const result = await getSummaryAndTags(asset.id, {
+            provider: 'google',
             tone: 'professional',
         });
 

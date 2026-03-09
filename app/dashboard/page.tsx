@@ -2,10 +2,20 @@ import Link from "next/link";
 import { ListVideos } from "@/app/actions";
 import { ArrowLeft, Loader } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
+
+    const session = await getServerSession(authOptions);
+
+    if(!session || !session.user){
+        redirect("/");
+    }
+    
     const videos = await ListVideos();
 
     return (

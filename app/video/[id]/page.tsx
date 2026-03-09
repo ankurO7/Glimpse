@@ -17,7 +17,7 @@ export default async function VideoPage({
     const isVideoReady = status === 'ready';
     const isTranscriptReady = transcriptStatus === 'ready';
 
-    const downloadUrl = `https://stream.mux.com/${playbackId}/high.mp4?download=screen-recording.mp4`;
+    const downloadUrl = `https://stream.mux.com/${playbackId}/highest.mp4?download=screen-recording.mp4`;
 
     return(
         <main className="min-h-screen bg-slate-950 p-6 md:p-12 text-slate-200">
