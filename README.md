@@ -1,6 +1,6 @@
 # Glimpse 📹✨
 
-Glimpse is a AI-powered screen recording and video management platform. It allows users to capture their screen and microphone, upload recordings directly to Mux, and automatically generate AI transcripts and video summaries. 
+Glimpse is an AI-powered screen recording and video management platform. It allows users to capture their screen and microphone, upload recordings directly to Mux, and automatically generate AI transcripts and video summaries. 
 
 Built with a focus on scalable video infrastructure, Glimpse leverages secure webhooks and direct-to-cloud uploading to handle heavy video processing seamlessly.
 
