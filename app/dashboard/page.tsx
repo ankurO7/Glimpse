@@ -22,7 +22,7 @@ export default async function DashboardPage() {
         <main className="min-h-screen bg-slate-950 p-6 md:p-12 text-slate-200">
             <div className="max-w-6xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-white">My Recordings</h1>
+                    <h1 className="text-4xl font-bold text-white">My Recordings</h1>
                     <Link href="/" className="flex items-center gap-2 text-blue-400 hover:text-white transition text-sm">
                         <ArrowLeft className="w-4 h-4" /> Back to Recorder
                     </Link>
@@ -44,7 +44,7 @@ export default async function DashboardPage() {
                                         <VideoThumbnail playbackId={video.playback_ids[0].id} />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-slate-500 text-xs">
-                                            Processing...<Loader className="h-3 w-3" />
+                                            Loading...<Loader className="h-3 w-3" />
                                         </div>
                                     )}
                                 </Link>
