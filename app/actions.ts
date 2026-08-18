@@ -1,5 +1,6 @@
 'use server';
 
+import prisma from "@/lib/prisma";
 import Mux from "@mux/mux-node";
 import { Playback } from "@mux/mux-node/resources/video.mjs";
 import { getServerSession } from "next-auth";

@@ -4,8 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUploadUrl, getAssetIdFromUpload } from '@/app/actions';
 import { Loader2, StopCircle, Monitor, Video } from 'lucide-react';
-import { disconnect } from 'process';
-import { isPageStatic } from 'next/dist/build/utils';
+
 
 
 export default function ScreenRecorder() { 
