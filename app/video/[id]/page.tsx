@@ -39,16 +39,19 @@ export default async function VideoPage({
                         {isVideoReady ? (
                             <>
                                 <MuxPlayerWrapper playbackId={playbackId} />
-                                {!isTranscriptReady && <VideoStatusPoller id={playbackId} isVideoReady={true} />}
+                                {!isTranscriptReady && <VideoStatusPoller id={playbackId} isVideoReady={true} status={status} />}
                             </>
                         ) : (
-                            <VideoStatusPoller id={playbackId} isVideoReady={false} />
+                            <VideoStatusPoller id={playbackId} isVideoReady={false} status={status} />
                         )}
                     </div>
 
                     {/* Action Buttons Download Not working */}
-                    <div className="flex justify-between items-center bg-slate-900 p-6 rounded-xl border border-slate-800">
-                        <h1 className="text-xl font-bold text-white">Screen Recording</h1>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-slate-900/90 p-5 md:p-6 rounded-xl border border-slate-800">
+                        <div>
+                            <p className="text-xs uppercase tracking-widest text-emerald-400/80">Your recording</p>
+                            <h1 className="text-xl font-bold text-white">Screen Recording</h1>
+                        </div>
                         <div className="flex gap-3">
                             <ShareButton />
                             {isVideoReady && (

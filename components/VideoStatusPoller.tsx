@@ -7,10 +7,12 @@ import { Loader2 } from "lucide-react";
 
 export default function VideoStatusPoller({
     id,
-    isVideoReady
+    isVideoReady,
+    status
 }: {
     id:string;
-    isVideoReady:boolean
+    isVideoReady:boolean;
+    status?: string;
 }) {
     const router = useRouter();
 
@@ -25,14 +27,30 @@ export default function VideoStatusPoller({
             if(!isVideoReady && transcriptStatus === 'ready'){
                 router.refresh();
             }
+
+            if (!isVideoReady && status === 'errored') {
+                return;
+            }
         };
 
+        if (status === 'errored') return;
+
+        CheckStatus();
         const interval = setInterval(CheckStatus, 3000);
         return () => clearInterval(interval);
 
-    }, [id, isVideoReady, router]);
+    }, [id, isVideoReady, router, status]);
 
     if(isVideoReady) return null;
+
+    if (status === 'errored') {
+        return (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-3 bg-red-950/30 px-6 text-center">
+                <p className="font-semibold text-red-200">This recording could not be processed.</p>
+                <p className="text-sm text-red-200/70">Return to the recorder and upload it again.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-900">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ListVideos } from "@/app/actions";
-import { ArrowLeft, Loader } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 import VideoThumbnail from "@/components/VideoThumbnail";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]/route";
@@ -38,20 +38,18 @@ export default async function DashboardPage() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {videos.map((video) => (
-                            <div key={video.id} className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden hover:border-slate-600">
-                                <Link href={`/video/${video.playback_ids?.[0]?.id}`} className="block relative aspect-video bg-black">
-                                    {video.status === 'ready' && video.playback_ids?.[0] ? (
-                                        <VideoThumbnail playbackId={video.playback_ids[0].id} />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-slate-500 text-xs">
-                                            Loading...<Loader className="h-3 w-3" />
-                                        </div>
-                                    )}
+                            <div key={video.id} className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden hover:border-slate-600 transition-colors">
+                                <Link href={`/video/${video.playbackId}`} className="block relative aspect-video bg-black">
+                                    <VideoThumbnail playbackId={video.playbackId} />
+                                    <span className="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/35 transition-colors">
+                                        <Play className="w-10 h-10 text-white opacity-0 hover:opacity-100 transition-opacity" fill="currentColor" />
+                                    </span>
                                 </Link>
 
                                 <div className="p-4">
+                                    <h2 className="font-semibold text-white truncate">{video.title}</h2>
                                     <p className="text-sm text-slate-300">
-                                        {new Date(Number(video.created_at)*1000).toLocaleDateString()}
+                                        {new Date(video.createdAt).toLocaleDateString()}
                                     </p>
 
                                 </div>

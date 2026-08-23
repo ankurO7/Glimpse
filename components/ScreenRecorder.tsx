@@ -6,12 +6,12 @@ import { createUploadUrl, getAssetIdFromUpload } from '@/app/actions';
 import { Loader2, StopCircle, Monitor, Video } from 'lucide-react';
 
 
-
 export default function ScreenRecorder() { 
 
     const [isRecording, setIsRecording] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [mediaBlob, setMediaBlob] = useState<Blob | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -24,6 +24,7 @@ export default function ScreenRecorder() {
     const startRecording = async () => {
 
         try { 
+            setError(null);
             // 1. capture the screen
 
             const screenStream = await navigator.mediaDevices.getDisplayMedia({
@@ -105,6 +106,7 @@ export default function ScreenRecorder() {
             screenStream.getVideoTracks()[0].onended = stopRecording;
         } catch( err ){
             console.error('Error starting recording:', err);
+            setError('Screen sharing could not start. Check your browser permissions and try again.');
         }
     };
 
@@ -120,6 +122,7 @@ export default function ScreenRecorder() {
         if(!mediaBlob) return ;
 
         setIsUploading(true);
+        setError(null);
 
         try {
             // 1. get a signed url from our server
@@ -128,30 +131,38 @@ export default function ScreenRecorder() {
 
             // 2. upload the video directly to mux (not through our server)
 
-            await fetch(uploadConfig.url, {
+            const uploadResponse = await fetch(uploadConfig.url, {
                 method: 'PUT',
                 body: mediaBlob
             });
+            if (!uploadResponse.ok) {
+                throw new Error(`Upload failed with status ${uploadResponse.status}.`);
+            }
 
             // 3. Poll until processing completes.
 
-            while (true){
+            for (let attempt = 0; attempt < 90; attempt += 1){
                 const result = await getAssetIdFromUpload(uploadConfig.id);
                 if(result.playbackId){
                     router.push(`/video/${result.playbackId}`);
-                    break;
+                    return;
+                }
+                if (result.status === 'errored') {
+                    throw new Error(result.error ?? 'Mux could not process this recording.');
                 }
                 await new Promise( r => setTimeout( r, 1000));
             }
+            throw new Error('Processing is taking longer than expected. Please try uploading again.');
         } catch (e) {
             console.error('Error uploading video', e);
+            setError(e instanceof Error ? e.message : 'Upload failed. Please try again.');
             setIsUploading(false);
         }
     }
 
     return (
 
-        <div className='flex flex-col items-center gap-6 p-8 bg-slate-900 rounded-xl border border-slate-700 w-full max-w-md shadow-2xl'>
+        <div className='flex flex-col items-center gap-6 p-5 sm:p-8 bg-slate-900/90 rounded-2xl border border-slate-700/80 w-full max-w-md shadow-2xl shadow-black/30'>
             <h2 className='text-2xl font-bold text-white'>
                 {isRecording ? "Recording..." : "New Recording"}
             </h2>
@@ -170,9 +181,9 @@ export default function ScreenRecorder() {
 
                 {/* Recording Ready State */}
                 {!isRecording && mediaBlob && (
-                    <div className='text-emerald-400 flex flex-col items-center'>
+                    <div className='text-emerald-400 flex flex-col items-center gap-1'>
                         <Video className="w-12 h-12 mb-2" />
-                        <span>Recording Ready</span>
+                        <span className='font-medium'>Recording ready to share</span>
                     </div>
                 )}
 
@@ -180,7 +191,7 @@ export default function ScreenRecorder() {
                 {!isRecording && !mediaBlob && (
                     <div className='text-slate-600 flex flex-col items-center'>
                         <Monitor className='w-12 h-12 mb-2 opacity-50' />
-                        <span>Preview Area</span>
+                        <span className='text-sm'>Your preview will appear here</span>
                     </div>
                 )}
 
@@ -188,10 +199,16 @@ export default function ScreenRecorder() {
 
                 {isRecording && (
                     <div className='absolute top-4 right-4 animate-pulse'>
-                        <div className='w-3 h-3 bg-red-500 rounded-full shadow-(0_0_10px_rgba(239,68,68,0.6)]' />
+                        <div className='w-3 h-3 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.6)]' />
                     </div>
                 )}
             </div>
+
+            {error && (
+                <div role='alert' className='w-full rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200'>
+                    {error}
+                </div>
+            )}
 
 
             {/* Controls */}
@@ -215,8 +232,8 @@ export default function ScreenRecorder() {
                     <button
                         onClick={handleUpload}
                         disabled={isUploading}
-                        className='w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium flex justify-center items-center gap-2 disabled:'>
-                        {isUploading ? <Loader2 className='animate-spin w-5 h-5' /> : 'Upload & Share'}
+                        className='w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium flex justify-center items-center gap-2 disabled:cursor-wait disabled:opacity-70'>
+                        {isUploading ? <><Loader2 className='animate-spin w-5 h-5' /> Uploading...</> : 'Upload & Share'}
                     </button>
                 )}
             </div>

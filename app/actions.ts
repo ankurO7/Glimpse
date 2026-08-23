@@ -14,14 +14,22 @@ const mux = new Mux({
 export async function createUploadUrl(){
 
     const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+        throw new Error('You must be signed in to upload a recording.');
+    }
+
     const currentUser = await prisma.user.findUnique({
-            where: { email: session?.user?.email}
+            where: { email: session.user.email}
     });
+    if (!currentUser) {
+        throw new Error('Your account could not be found. Please sign in again.');
+    }
+
     const upload = await mux.video.uploads.create({
         new_asset_settings: {
             playback_policies: ['public'],
             video_quality: 'basic',
-            passthrough: currentUser?.id,
+            passthrough: currentUser.id,
             static_renditions: [{ resolution: '480p' }],
             inputs: [
                 {
@@ -52,20 +60,32 @@ export async function createUploadUrl(){
 }
 
 export async function getAssetIdFromUpload(uploadId: string){
-    
-    const upload = await mux.video.uploads.retrieve(uploadId);
+    try {
+        const upload = await mux.video.uploads.retrieve(uploadId);
 
-    if(upload.asset_id){
-        const asset = await mux.video.assets.retrieve(upload.asset_id);
-
-        if(asset.playback_ids && asset.playback_ids.length > 0){
-            return {
-                playbackId: asset.playback_ids[0].id,
-                status: asset.status
-            };
+        if (upload.status === 'errored') {
+            return { status: 'errored', error: 'Mux could not process this upload.' };
         }
+
+        if(upload.asset_id){
+            const asset = await mux.video.assets.retrieve(upload.asset_id);
+
+            if (asset.status === 'errored') {
+                return { status: 'errored', error: 'Mux could not process this recording.' };
+            }
+
+            if(asset.playback_ids && asset.playback_ids.length > 0){
+                return {
+                    playbackId: asset.playback_ids[0].id,
+                    status: asset.status
+                };
+            }
+        }
+        return { status: upload.status ?? 'waiting' };
+    } catch (error) {
+        console.error('Error checking upload status', error);
+        return { status: 'errored', error: 'Could not check the upload status.' };
     }
-    return { status: 'waiting'};
 }
 
 export async function ListVideos() {
