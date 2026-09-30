@@ -59,33 +59,36 @@ export async function createUploadUrl(){
     };
 }
 
-export async function getAssetIdFromUpload(uploadId: string){
-    try {
-        const upload = await mux.video.uploads.retrieve(uploadId);
+export async function getAssetIdFromUpload(uploadId: string) {
+  try {
+    const upload = await mux.video.uploads.retrieve(uploadId);
 
-        if (upload.status === 'errored') {
-            return { status: 'errored', error: 'Mux could not process this upload.' };
-        }
-
-        if(upload.asset_id){
-            const asset = await mux.video.assets.retrieve(upload.asset_id);
-
-            if (asset.status === 'errored') {
-                return { status: 'errored', error: 'Mux could not process this recording.' };
-            }
-
-            if(asset.playback_ids && asset.playback_ids.length > 0){
-                return {
-                    playbackId: asset.playback_ids[0].id,
-                    status: asset.status
-                };
-            }
-        }
-        return { status: upload.status ?? 'waiting' };
-    } catch (error) {
-        console.error('Error checking upload status', error);
-        return { status: 'errored', error: 'Could not check the upload status.' };
+    if (upload.status === "errored") {
+      return { status: "errored", error: "Mux could not process this upload." };
     }
+
+    if (upload.asset_id) {
+      const asset = await mux.video.assets.retrieve(upload.asset_id);
+
+      if (asset.status === "errored") {
+        return { status: "errored", error: "Mux could not process this recording." };
+      }
+
+      const playbackId = asset.playback_ids?.[0]?.id;
+
+      if (playbackId) {
+        return {
+          playbackId,
+          status: asset.status,
+        };
+      }
+    }
+
+    return { status: upload.status ?? "waiting" };
+  } catch (error) {
+    console.error("Error checking upload status", error);
+    return { status: "errored", error: "Could not check the upload status." };
+  }
 }
 
 export async function ListVideos() {
