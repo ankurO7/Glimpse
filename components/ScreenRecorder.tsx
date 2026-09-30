@@ -117,6 +117,37 @@ export default function ScreenRecorder() {
             setIsRecording(false);
         }
     };
+        const mimeType =
+      MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+        ? "video/webm;codecs=vp9"
+        : "video/webm";
+    
+    const mediaRecorder = new MediaRecorder(combinedStream, { mimeType });
+    
+    const stopAllStreams = () => {
+      screenStreamRef.current?.getTracks().forEach((track) => track.stop());
+      micStreamRef.current?.getTracks().forEach((track) => track.stop());
+      screenStreamRef.current = null;
+      micStreamRef.current = null;
+    };
+    
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: "video/webm" });
+      setMediaBlob(blob);
+    
+      if (liveVideoRef.current) {
+        liveVideoRef.current.srcObject = null;
+      }
+    
+      stopAllStreams();
+    };
+    
+    const stopRecording = () => {
+      if (mediaRecorderRef.current && isRecording) {
+        mediaRecorderRef.current.stop();
+        setIsRecording(false);
+      }
+    };
 
     const handleUpload = async () => {
         if(!mediaBlob) return ;
