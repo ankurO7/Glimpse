@@ -125,13 +125,16 @@ function formatVttTime(timestamp: string) {
 
 export async function getAssetStatus(playbackId: string) {
   try {
-    const mux = getMuxClient();
-    const assets = await mux.video.assets.list({ limit: 100 });
-    const asset = assets.data.find((a) =>
-      a.playback_ids?.some((p) => p.id === playbackId)
-    );
+    const video = await prisma.video.findFirst({
+      where: { playbackId },
+    });
 
-    if (!asset) return { status: "errored", transcript: [] };
+    if(!video?.muxAssetId) {
+      return { status: "errored", transcriptStatus: "errored", transcript: [] };
+    }
+    
+    const mux = getMuxClient();
+    const asset = await mux.video.assets.retrieve(video.muxAssetId);
 
     let transcript: { time: string; text: string }[] = [];
     let transcriptStatus = "preparing";
@@ -165,6 +168,15 @@ export async function getAssetStatus(playbackId: string) {
 
           return acc;
         }, []);
+
+        return {
+          status: asset.status,
+          transcriptStatus: "ready",
+          transcript: [],
+        };
+      } catch(error) {
+        console.error("Error fetching asset status:", error);
+        return { status: "errored", transcriptStatus: "errored", transcript: [] };
       }
     }
 
