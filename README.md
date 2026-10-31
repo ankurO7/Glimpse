@@ -26,7 +26,7 @@ Built with a focus on scalable video infrastructure, Glimpse leverages secure we
 ### 1. Clone & Install
 ```bash
 git clone [https://github.com/yourusername/Glimpse.git](https://github.com/yourusername/Glimpse.git)
-cd bloom
+cd Glimpse
 npm install
 ```
 
