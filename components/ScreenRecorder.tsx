@@ -22,6 +22,7 @@ export default function ScreenRecorder() {
   const stopAllStreams = () => {
     screenStreamRef.current?.getTracks().forEach((track) => track.stop());
     micStreamRef.current?.getTracks().forEach((track) => track.stop());
+    
     screenStreamRef.current = null;
     micStreamRef.current = null;
   };
@@ -34,6 +35,7 @@ export default function ScreenRecorder() {
   };
 
   const startRecording = async () => {
+    if (isRecording) return;
     try {
       setError(null);
 
