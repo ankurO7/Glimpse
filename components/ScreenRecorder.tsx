@@ -100,7 +100,10 @@ export default function ScreenRecorder() {
   };
 
   const handleUpload = async () => {
-    if (!mediaBlob) return;
+    if (!mediaBlob){
+      setError("No recording data available.");
+      return;
+    }
 
     setIsUploading(true);
     setError(null);
@@ -108,10 +111,16 @@ export default function ScreenRecorder() {
     try {
       const uploadConfig = await createUploadUrl();
 
+      
       const uploadResponse = await fetch(uploadConfig.url, {
         method: "PUT",
+        headers: {
+          "Content-Type" : mediaBlob.type || "video/webm",
+        },
         body: mediaBlob,
+        
       });
+      
 
       if (!uploadResponse.ok) {
         throw new Error(`Upload failed with status ${uploadResponse.status}.`);
