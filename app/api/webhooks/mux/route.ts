@@ -5,13 +5,28 @@ import prisma from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const rawBody = await req.text();
-    const signature = req.headers.get("mux-signature");
+    const header = req.headers.get("mux-signature") ?? "";
+    const provided = header
+      .split(",")
+      .map((part) => part.trim())
+      .find((part) => part.startsWith("v1="))
+      ?.replace(/^v1=/, "");
+
     const expected = crypto
       .createHmac("sha256", process.env.MUX_WEBHOOK_SECRET!)
       .update(rawBody)
       .digest("base64");
 
-    if (!signature || !signature.includes(expected)) {
+    if (!provided) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(provided),
+      Buffer.from(expected)
+    );
+
+    if (!isValid) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -33,7 +48,7 @@ export async function POST(req: Request) {
     await prisma.video.upsert({
       where: { muxAssetId },
       update: { playbackId, userId },
-      create: { muxAssetId, playbackId, userId }
+      create: { muxAssetId, playbackId, userId },
     });
 
     return NextResponse.json({ message: "Webhook processed" });
